@@ -69,7 +69,7 @@ class Folder(Element):
         except Exception:
             return False
 
-    def calculate_size(self, min_size=0) -> int:
+    def calculate_size(self) -> int:
         total_size = 0
         for el in self.init_elements():
             try:
@@ -79,16 +79,12 @@ class Folder(Element):
 
                 if isinstance(el, Folder):
                     try:
-                        el_size = el.calculate_size(min_size)
+                        el_size = el.calculate_size()
                     except PermissionError:
                         print(Fore.RED + f'Permission denied: {el.path}')
                         continue
                 else:
                     el_size = el.calculate_size()
-
-                if el_size >= min_size:
-                    size_info = Fore.YELLOW + f'{el.human_size(el_size)}'
-                    print(f'{el.path}\t{size_info}')
 
                 total_size += el_size
                 self.size = total_size
@@ -161,20 +157,12 @@ def main():
         if os.path.exists(path):
             break
         print(Fore.RED + 'Invalid path, please try again')
-
-    while True:
-        try:
-            min_size = int(input('Enter minimum size for scanning (bytes) -> '))
-            if min_size >= 0:
-                break
-        except:
-            print(Fore.RED + 'Please enter a valid non-negative integer')
     
     print_elements=print_dialog()
     
     try:
         f = Folder(os.path.abspath(path))
-        total_size = f.calculate_size(min_size)
+        total_size = f.calculate_size()
         print(Fore.YELLOW + '\nTotal size: ' + f'{f.human_size(total_size)}')
 
         sorted_elements = f.get_sorted_elements()
